@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bi.dao.BlogMapper">
+     <resultMap id="blogmap" type="Blog">
+          <id property="id" column="id"/>
+          <result property="title" column="title"/>
+          <result property="content" column="content"/>
+          <result property="firstPicture" column="firstPicture"/>
+          <result property="flag" column="flag"/>
+          <result property="views" column="views"/>
+          <result property="appreciation" column="appreciation"/>
+          <result property="shareStatement" column="shareStatement"/>
+          <result property="commentabled" column="commentabled"/>
+          <result property="published" column="published"/>
+          <result property="recommend" column="recommend"/>
+          <result property="createTime" column="createTime"/>
+          <result property="updateTime" column="updateTime"/>
+          <result property="description" column="description"/>
+          <association property="type" select="com.bi.dao.TypeMapper.getType" column="type_id"/>
+          <association property="user" select="com.bi.dao.UserMapper.findById" column="user_id"/>
+          <collection property="tags" ofType="Tag" select="com.bi.dao.BlogMapper.blogtags" column="id"/>
+          <collection property="comments" ofType="Comment" select="com.bi.dao.CommentMapper.getBlogComment" column="id"/>
+     </resultMap>
+     <insert id="saveBlog" parameterType="Blog" useGeneratedKeys="true" keyProperty="id"  keyColumn="id">
+          INSERT INTO t_blog (title,content,firstPicture,flag,views,appreciation,shareStatement,commentabled,published,recommend,createTime,updateTime,type_id,user_id,description)
+          VALUES (#{title},#{content},#{firstPicture},#{flag},#{views},#{appreciation},#{shareStatement},#{commentabled},#{published},#{recommend},#{createTime},#{updateTime},#{type.id},#{user.id},#{description})
+     </insert>
+     <select id="getBlog" parameterType="Long" resultMap="blogmap">
+          SELECT * FROM t_blog WHERE id=#{id}
+     </select>
+     <select id="listBlog"  resultMap="blogmap" parameterType="com.bi.util.BlogQuery">
+          select * from t_blog
+          <trim prefix="where" suffixOverrides="and">
+               <if test="title != null and title!=''">title like "%"#{title}"%" and</if>
+               <if test="typeId != null ">type_id = #{typeId} and</if>
+               <if test="recommend">recommend=#{recommend} and</if>
+          </trim>
+     </select>
+     <update id="updateBlog" >
+          UPDATE t_blog
+          <trim prefix="set" suffixOverrides=",">
+               <if test="blog.title != null">title=#{blog.title},</if>
+               <if test="blog.content != null">content=#{blog.content},</if>
+               <if test="blog.firstPicture != null">firstPicture=#{blog.firstPicture},</if>
+               <if test="blog.flag != null">flag=#{blog.flag},</if>
+               <if test="blog.views != null">views=#{blog.views},</if>
+               <if test="blog.appreciation != null">appreciation=#{blog.appreciation},</if>
+               <if test="blog.shareStatement != null">shareStatement=#{blog.shareStatement},</if>
+               <if test="blog.commentabled != null">commentabled=#{blog.commentabled},</if>
+               <if test="blog.published != null">published=#{blog.published},</if>
+               <if test="blog.recommend != null">recommend=#{blog.recommend},</if>
+               <if test="blog.createTime != null">createTime=#{blog.createTime},</if>
+               <if test="blog.updateTime != null">updateTime=#{blog.updateTime},</if>
+               <if test="blog.description != null">description=#{blog.description},</if>
+               <if test="blog.type != null">type_id=#{blog.type.id},</if>
+          </trim>
+           WHERE id=#{id}
+     </update>
+     <update id="deleteBlog" parameterType="Long" >
+          DELETE FROM t_blog WHERE id=#{id}
+     </update>
+     <select id="blogtags" parameterType="Long" resultType="Tag">
+          select * FROM t_tag WHERE id =some( SELECT tag_id FROM t_blog_tags WHERE blog_id=#{id})
+     </select>
+     <select id="tagblogs" parameterType="Long" resultMap="blogmap">
+          select * FROM t_blog WHERE id =some( SELECT blog_id FROM t_blog_tags WHERE tag_id=#{id})
+     </select>
+     <insert id="saveBlogTags">
+          INSERT INTO t_blog_tags(blog_id,tag_id) values
+          <foreach collection="tags" index="index" separator="," item="item">
+               (#{id},#{item.id})
+          </foreach>
+     </insert>
+     <update id="deleteBlogTags" parameterType="Long" >
+          DELETE FROM t_blog_tags WHERE blog_id=#{id}
+     </update>
+     <select id="listAllBlog"  resultMap="blogmap">
+          select * from t_blog
+     </select>
+     <select id="listRecommendeBlog"  resultMap="blogmap">
+          select * from t_blog WHERE recommend=TRUE
+     </select>
+     <select id="listQueryBlog"  resultMap="blogmap" parameterType="String">
+          select * from t_blog WHERE title like "%"#{query}"%" OR content LIKE "%"#{query}"%"
+     </select>
+     <update id="updateBlogView">
+          UPDATE t_blog SET views = #{view} WHERE id=#{id}
+     </update>
+     <select id="listBlogByType"  resultMap="blogmap" parameterType="Long">
+          select * from t_blog WHERE type_id=#{id}
+     </select>
+     <select id="listPublishedBlog"  resultMap="blogmap">
+          select * from t_blog WHERE published=TRUE
+     </select>
+</mapper>

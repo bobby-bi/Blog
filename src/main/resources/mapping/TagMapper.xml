@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bi.dao.TagMapper">
+     <resultMap id="tagmap" type="Tag">
+          <id property="id" column="id"/>
+          <result property="name" column="name"/>
+          <collection property="blogs" ofType="Blog" select="com.bi.dao.BlogMapper.tagblogs" column="id"/>
+     </resultMap>
+     <insert id="saveTag" parameterType="Tag">
+          INSERT INTO t_tag (name) VALUES (#{name})
+     </insert>
+     <select id="getTag" parameterType="Long" resultMap="tagmap">
+           select * from t_tag where id=#{id}
+     </select>
+     <select id="listTag"  resultMap="tagmap">
+          select * from t_tag
+     </select>
+     <update id="updateTag" >
+          UPDATE t_tag SET name=#{tag.name} WHERE id=#{id}
+     </update>
+     <update id="deleteTag" parameterType="Long" >
+          DELETE FROM t_tag WHERE id=#{id}
+     </update>
+     <select id="getTagByName" parameterType="String" resultMap="tagmap">
+          select * from t_tag where name=#{name}
+     </select>
+</mapper>

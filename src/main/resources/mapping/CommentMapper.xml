@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bi.dao.CommentMapper">
+
+     <resultMap id="commmetmap" type="Comment">
+          <id property="id" column="id"/>
+          <result property="nickname" column="nickname"/>
+          <result property="email" column="email"/>
+          <result property="content" column="content"/>
+          <result property="avator" column="avator"/>
+          <result property="createTime" column="createTime"/>
+         <result property="adminComment" column="adminComment"/>
+          <association property="blog" column="blog_id" select="com.bi.dao.BlogMapper.getBlog"/>
+          <association property="parentComment" column="parent_comment_id" select="com.bi.dao.CommentMapper.getComment"/>
+          <collection property="replyComments" column="id" ofType="Comment" select="com.bi.dao.CommentMapper.getChildComment"/>
+     </resultMap>
+     <select id="getComment" parameterType="Long" resultMap="commmetmap">
+     select * from t_comment where id=#{id}
+    </select>
+     <select id="getChildComment" parameterType="Long" resultMap="commmetmap">
+          select * from t_comment where parent_comment_id=#{id}
+     </select>
+     <select id="getBlogComment" parameterType="Long" resultMap="commmetmap">
+          select * from t_comment where blog_id=#{id} ORDER BY createTime DESC
+     </select>
+    <insert id="saveComment" parameterType="Comment" >
+        INSERT INTO t_comment (avator,content,nickname,email,createTime,blog_id,parent_comment_id,adminComment)
+         VALUES (#{avator},#{content},#{nickname},#{email},#{createTime},#{blog.id},#{parentComment.id},#{adminComment})
+    </insert>
+    <select id="getBlogCommentAndParentCommentNull" parameterType="Long" resultMap="commmetmap">
+        select * from t_comment where blog_id=#{id} AND parent_comment_id IS NULL ORDER BY createTime ASC
+    </select>
+    <insert id="deleteCommentByBlog" parameterType="Long">
+        DELETE FROM t_comment WHERE blog_id=#{blogId}
+    </insert>
+</mapper>

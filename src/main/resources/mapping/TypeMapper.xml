@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.bi.dao.TypeMapper">
+     <resultMap id="typemap" type="Type">
+          <id property="id" column="id"/>
+          <result property="name" column="name"/>
+          <collection property="blogs" ofType="Blog" select="com.bi.dao.BlogMapper.listBlogByType" column="id"/>
+     </resultMap>
+     <insert id="saveType" parameterType="Type">
+          INSERT INTO t_type (name) VALUES (#{name})
+     </insert>
+     <select id="getType" parameterType="Long"  resultMap="typemap">
+           select * from t_type where id=#{id}
+     </select>
+     <select id="listType"   resultMap="typemap">
+          select * from t_type
+     </select>
+     <update id="updateType" >
+          UPDATE t_type SET name=#{type.name} WHERE id=#{id}
+     </update>
+     <update id="deleteType" parameterType="Long" >
+          DELETE FROM t_type WHERE id=#{id}
+     </update>
+     <select id="getTypeByName" parameterType="String"  resultMap="typemap">
+          select * from t_type where name=#{name}
+     </select>
+</mapper>

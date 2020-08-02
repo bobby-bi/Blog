@@ -1,0 +1,9 @@
+
+spring:
+  thymeleaf:
+    mode: HTML
+  profiles:
+    active: pro
+
+comment.avator: /images/youke.jpg
+
